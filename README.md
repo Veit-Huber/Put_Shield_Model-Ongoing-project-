@@ -54,6 +54,7 @@ python -m src.dashboard.screener
 
 ```bash
 # Small test universe (fast)
+# Set source: manual in configs/strategy.yaml, then:
 python -m src.backtest.equity_backtest
 
 # Full S&P 500 + historical failures including Enron, Lehman, BBBY (slower, more accurate)

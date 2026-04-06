@@ -1,0 +1,67 @@
+# Put-Shield Strategy Configuration - Stage 1
+# Only Altman Z-Score enabled. Add more signals as they are implemented.
+
+universe:
+  # Options for 'source':
+  #   manual       — use the tickers list below (fast, for testing)
+  #   sp500        — fetch current S&P 500 from Wikipedia (~500 tickers)
+  #   full         — S&P 500 + historical failures/delisted stocks (best for backtesting)
+  source: full
+  tickers:
+    - AAPL
+    - MSFT
+    - TSLA
+    - JPM
+    - XOM
+    - BA
+    - AMC
+    - GME
+
+backtest:
+  start_date: "2018-01-01"
+  end_date: "2025-12-31"
+  rebalance_frequency: monthly   # monthly | quarterly
+  estimation_years: 3            # walk-forward burn-in period
+  forward_return_windows: [21, 63]  # trading days (~1m, ~3m)
+  crash_threshold: -0.20         # >20% drawdown = crash
+
+thresholds:
+  danger: 0.65    # composite score above this → flagged
+  caution: 0.40   # composite score above this → caution
+
+signals:
+  altman_z:
+    enabled: true
+    weight: 1.0
+    hard_stop_z: 1.81        # Z < 1.81 = distress zone hard stop
+    safe_zone_z: 2.99        # Z > 2.99 = safe
+    norm_low: 1.0            # Z below this → score = 1.0 (max danger)
+    norm_high: 3.5           # Z above this → score = 0.0 (safe)
+
+  beneish_m:
+    enabled: true
+    weight: 1.0              # I decided to equal weight, might adust since it's a noisier signal
+    hard_stop_m: -1.78       # M > -1.78 = likely manipulator
+    norm_low: -2.5           # M ≤ -2.5 → score = 0.0 (safe)
+    norm_high: -1.0          # M ≥ -1.0 → score = 1.0 (max danger)
+    # Note: automatically returns NaN for financial sector tickers
+
+  # piotroski_f:
+  #   enabled: false
+  #   weight:
+  #   hard_stop_f: 3
+
+  # iv_skew:
+  #   enabled: false
+  #   weight:
+
+  # short_interest:
+  #   enabled: false
+  #   weight:
+
+data:
+  cache_dir: "data/raw"
+  filing_lag_quarterly_days: 45
+  filing_lag_annual_days: 75
+  max_retries: 3
+  retry_delay_seconds: 2
